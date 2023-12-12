@@ -6,15 +6,14 @@ import os
 
 
 class QNet(nn.Sequential):
-    def __init__(self, input_size, hidden_size, output_size,) -> None:
+    def __init__(self, input_size, hidden_size, output_size) -> None:
         super().__init__()
         self.model = torch.nn.Sequential(
             torch.nn.Linear(input_size, hidden_size),
             torch.nn.ReLU(),
             torch.nn.Linear(hidden_size, hidden_size),
             torch.nn.ReLU(),
-            torch.nn.Linear(hidden_size, output_size),
-
+            torch.nn.Linear(hidden_size, output_size)
         )
         self.gamma = 0.9
         self.epsilon = 1

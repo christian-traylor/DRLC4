@@ -92,8 +92,8 @@ turns = {
 
 
 Agent = Agent()
-
-for i in range(10000):
+epochs = 1000
+for i in range(epochs):
     board = create_board()
     game_over = False
     turn = 0
@@ -101,9 +101,9 @@ for i in range(10000):
     draw_board(board)
     pygame.display.update()
     print(i)
-    if i > 8000 and len(Agent.first_turn.losses) != 0 and Agent.first_turn.losses[-1] < 120:
-        Agent.first_turn.save(file_name='first_turn.pth')
-        break
+    # if i > 8000 and len(Agent.first_turn.losses) != 0 and Agent.first_turn.losses[-1] < 120:
+    #     Agent.first_turn.save(file_name='first_turn.pth')
+    #     break
     while not game_over:
         acting_model, waiting_model = (Agent.first_turn, Agent.second_turn) if turn == 0 else (Agent.second_turn, Agent.first_turn)
         if len(Agent.states) == 1:
@@ -140,9 +140,9 @@ for i in range(10000):
         else:
             game_over = True
     if Agent.first_turn.epsilon > 0.1: #R
-        Agent.first_turn.epsilon -= (1/10000)
+        Agent.first_turn.epsilon -= (1/epochs)
     if Agent.second_turn.epsilon > 0.1:
-        Agent.second_turn.epsilon -= (1/10000)
+        Agent.second_turn.epsilon -= (1/epochs)
     
 
 plt.figure(figsize=(10,7))
