@@ -131,7 +131,7 @@ for i in range(epochs):
                 if is_valid_location(board_copy, action):
                     row = get_next_open_row(board_copy, action)
                     drop_piece(board_copy, row, action, turns[not turn])
-                    reward = -10 if winning_move(board_copy, turns[not turn]) else 0
+                    reward = -10 if winning_move(board_copy, turns[not turn]) else -1
                     board_copy = board_copy.reshape(1,42) + np.random.rand(1,42)/10.0
                     board_copy = torch.from_numpy(board_copy).float()
                     Agent.get_loss(board_copy, reward, X, acting_model)
