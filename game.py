@@ -1,5 +1,4 @@
 import pygame
-import sys
 import numpy as np
 import torch
 from agent import Agent
@@ -90,9 +89,10 @@ turns = {
     1 : 2
 }
 
+num_not_finished = 0
 
 Agent = Agent()
-epochs = 1000
+epochs = 5000
 for i in range(epochs):
     board = create_board()
     game_over = False
@@ -119,9 +119,9 @@ for i in range(epochs):
             drop_piece(board, row, action, turns[turn])
             if winning_move(board, turns[turn]):
                 game_over = True
-                Agent.reward_winning_move(acting_model, acting_model_predicted_qvals.squeeze()[action])
+                Agent.reward_winning_move(acting_model, acting_model_predicted_qvals.squeeze()[action], turn)
                 waiting_model_predicted_qval = torch.max(waiting_model(state).squeeze())
-                Agent.punish_losing_move(waiting_model, waiting_model_predicted_qval)
+                Agent.punish_losing_move(waiting_model, waiting_model_predicted_qval, not turn)
             else:
                 state_ = board.reshape(1,42) + np.random.rand(1,42)/10.0
                 state = torch.from_numpy(state_).float()
@@ -131,20 +131,21 @@ for i in range(epochs):
                 if is_valid_location(board_copy, action):
                     row = get_next_open_row(board_copy, action)
                     drop_piece(board_copy, row, action, turns[not turn])
-                    reward = -10 if winning_move(board_copy, turns[not turn]) else -1
+                    reward = -20 if winning_move(board_copy, turns[not turn]) else -1
                     board_copy = board_copy.reshape(1,42) + np.random.rand(1,42)/10.0
                     board_copy = torch.from_numpy(board_copy).float()
-                    Agent.get_loss(board_copy, reward, X, acting_model)
+                    Agent.calculate_q(board_copy, reward, X, acting_model, turn)
             draw_board(board)
             turn ^= 1
-        else:
+        else: # need to punish neural networks for trying to make moves that DONT FUCKING WORK
+            num_not_finished += 1
             game_over = True
     if Agent.first_turn.epsilon > 0.1: #R
         Agent.first_turn.epsilon -= (1/epochs)
     if Agent.second_turn.epsilon > 0.1:
         Agent.second_turn.epsilon -= (1/epochs)
     
-
+print(num_not_finished)
 plt.figure(figsize=(10,7))
 plt.plot(Agent.first_turn.losses)
 plt.xlabel("Epochs",fontsize=22)
