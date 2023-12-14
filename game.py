@@ -4,6 +4,7 @@ import torch
 from agent import Agent
 from copy import deepcopy
 from matplotlib import pylab as plt
+import torch.optim as optim
 
 pygame.init()
 
@@ -92,7 +93,9 @@ turns = {
 num_not_finished = 0
 
 Agent = Agent()
-epochs = 5000
+Agent.first_turn.scheduler = optim.lr_scheduler.StepLR(Agent.first_turn.optimizer, step_size=500, gamma=0.1)
+Agent.second_turn.scheduler = optim.lr_scheduler.StepLR(Agent.second_turn.optimizer, step_size=500, gamma=0.1)
+epochs = 3_000
 for i in range(epochs):
     board = create_board()
     game_over = False
@@ -121,7 +124,7 @@ for i in range(epochs):
                 game_over = True
                 Agent.reward_winning_move(acting_model, acting_model_predicted_qvals.squeeze()[action], turn)
                 waiting_model_predicted_qval = torch.max(waiting_model(state).squeeze())
-                Agent.punish_losing_move(waiting_model, waiting_model_predicted_qval, not turn)
+                Agent.punish_losing_move(waiting_model, waiting_model_predicted_qval, turn)
             else:
                 state_ = board.reshape(1,42) + np.random.rand(1,42)/10.0
                 state = torch.from_numpy(state_).float()
@@ -131,13 +134,14 @@ for i in range(epochs):
                 if is_valid_location(board_copy, action):
                     row = get_next_open_row(board_copy, action)
                     drop_piece(board_copy, row, action, turns[not turn])
-                    reward = -20 if winning_move(board_copy, turns[not turn]) else -1
+                    reward = -10 if winning_move(board_copy, turns[not turn]) else -1
                     board_copy = board_copy.reshape(1,42) + np.random.rand(1,42)/10.0
                     board_copy = torch.from_numpy(board_copy).float()
                     Agent.calculate_q(board_copy, reward, X, acting_model, turn)
             draw_board(board)
             turn ^= 1
         else: # need to punish neural networks for trying to make moves that DONT FUCKING WORK
+            Agent.punish_losing_move(acting_model, acting_model_predicted_qvals, turn)
             num_not_finished += 1
             game_over = True
     if Agent.first_turn.epsilon > 0.1: #R

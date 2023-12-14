@@ -72,11 +72,11 @@ class Agent():
         current_model.optimizer.step()
         current_model.iterations += 1
         if current_model.iterations % current_model.sync_freq == 0:
-            targ_network = self.get_target_network(current_model)
+            targ_network = targ_network = self.get_target_network(current_model)
             targ_network.load_state_dict(current_model.state_dict())
 
     def calculate_q(self, board_copy, reward, X, current_model: QNet, turn):
-        targ_network = self.get_target_network(current_model)
+        targ_network = targ_network = self.get_target_network(current_model)
         with torch.no_grad():
             Q2 = targ_network(board_copy)
         maxQ = torch.max(Q2)
@@ -90,6 +90,7 @@ class Agent():
         current_model.iterations += 1
         if current_model.iterations % current_model.sync_freq == 0:
             targ_network.load_state_dict(current_model.state_dict())
+            current_model.optimizer
 
     def initialize_target_network(self, model):
         target_network = deepcopy(model)

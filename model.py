@@ -9,15 +9,9 @@ class QNet(nn.Sequential):
     def __init__(self, input_size, hidden_size, output_size, turn) -> None:
         super().__init__()
         self.model = torch.nn.Sequential(
-            torch.nn.Linear(input_size, hidden_size ),
+            torch.nn.Linear(input_size, hidden_size*2),
             torch.nn.ReLU(),
-            torch.nn.Linear(hidden_size, hidden_size),
-            torch.nn.ReLU(),
-            torch.nn.Linear(hidden_size, hidden_size),
-            torch.nn.ReLU(),
-            torch.nn.Linear(hidden_size, hidden_size),
-            torch.nn.ReLU(),
-            torch.nn.Linear(hidden_size, hidden_size),
+            torch.nn.Linear(hidden_size*2, hidden_size),
             torch.nn.ReLU(),
             torch.nn.Linear(hidden_size, output_size),
         )
@@ -25,13 +19,13 @@ class QNet(nn.Sequential):
         # self.model.apply(self.init_weights)
         self.gamma = 0.9
         self.epsilon = 1
-        self.learning_rate = 1e-5
+        self.learning_rate = 0.001
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.losses = []
         self.iterations = 0
         self.sync_freq = 50
+        self.scheduler = None
         self.turn = turn
-        #self.loss_function = torch.nn.MSELoss()
 
     
     def save(self, file_name='model.pth'):
