@@ -1,8 +1,23 @@
 # DRLC4
-This was a (naive) experiment to determine if two deep reinforcement learning agents can learn how to play Connect4 by only playing games against each other.
+Deep Reinforcement Learning for Connect4
 
-This doesn't work because the reward algorithm expects to be playing against a perfrect opponent, which neither of them are.
+An implementation of Connect4 and a neural network based agent that will train itself to play Connect4 by playing against itself.
+This was a (naive) experiment to see if this was possible without the use of Monte Carlos Tree Search (MTCS). Unfortunately, it is not possible to train an agent to play against itself and see an increase in performance without the use of MTCS.
 
-To fix this issue, you must use Monte Carlos tree search.
 
-The ideas and algorithms presented in this codebase should work for singleplayer games.
+## Installation
+
+You must insure that PyTorch is installed.
+
+Clone the repository:
+```bash
+git clone https://github.com/christian-traylor/DRLC4.git
+cd repo
+```
+
+## Usage
+
+To run the game and commence the training:
+``` bash
+python game.py
+```
